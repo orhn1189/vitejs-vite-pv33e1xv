@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+// App.tsx dosyasının en üstüne (import'ların olduğu yere)
+import { Property, PropertyPhoto, PhotoComparison } from './types';
 
 const supabaseUrl = 'https://pwnffmzmrclvzsrikbdc.supabase.co';
 const supabaseKey = 'sb_publishable_JMQYVqglFtTZsHhUv-o-JQ_fCR-PFqk';
