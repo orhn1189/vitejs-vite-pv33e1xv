@@ -140,6 +140,19 @@ export default function App() {
             <small style={{color:'#64748b'}}>{user.email} {isPremium ? '👑' : ''}</small>
           </div>
           <button onClick={() => (!isPremium && properties.length >= FREE_LIMIT) ? setShowPaywall(true) : setShowForm(true)} style={primaryBtn}>+ Yeni Mülk Ekle</button>
+          <button
+  onClick={() => setDarkMode(!darkMode)}
+  style={{
+    background: 'none',
+    border: `1px solid ${theme.border}`,
+    color: theme.text,
+    padding: '8px 14px',
+    borderRadius: '12px',
+    cursor: 'pointer'
+  }}
+>
+  {darkMode ? '🌞' : '🌙'}
+</button>
         </header>
 
         {activeTab === 'dashboard' ? (
@@ -300,21 +313,53 @@ export default function App() {
 }
 
 // STİLLER
-const layoutStyle = { display: 'flex', height: '100vh', backgroundColor: '#f8fafc', fontFamily: 'system-ui' };
-const sidebarStyle = { width: '270px', backgroundColor: '#0f172a', display: 'flex', flexDirection: 'column', padding: '30px', justifyContent: 'space-between' };
+const sidebarStyle = {
+  width: '270px',
+  backgroundColor: theme.sidebar,
+  display: window.innerWidth < 768 ? 'none' : 'flex',
+};
+const layoutStyle = {
+  display: 'flex',
+  height: '100vh',
+  backgroundColor: theme.bg,
+  color: theme.text,
+};
+const sidebarStyle = {
+  width: '270px',
+  backgroundColor: theme.sidebar,
+};
 const logoStyle = { color: '#fff', fontSize: '24px', fontWeight: '900' };
-const navItem = { padding: '15px', color: '#94a3b8', cursor: 'pointer', borderRadius: '12px', marginBottom: '8px' };
-const navActive = { ...navItem, backgroundColor: '#1e293b', color: '#fff' };
+const navItem = {
+  padding: '15px',
+  color: theme.muted,
+};
+const navActive = {
+  ...navItem,
+  backgroundColor: theme.soft,
+  color: theme.text,
+};
 const premBtn = { ...navItem, color: '#f59e0b', fontWeight: 'bold' };
-const mainContent = { flex: 1, padding: '50px', overflowY: 'auto' };
+const mainContent = {
+  flex: 1,
+  padding: window.innerWidth < 768 ? '20px' : '50px',
+};
 const header = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' };
 const statsGrid = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' };
-const card = { background: '#fff', borderRadius: '24px', padding: '25px', border: '1px solid #f1f5f9', boxShadow:'0 4px 6px rgba(0,0,0,0.02)' };
+const card = {
+  background: theme.card,
+  color: theme.text,
+  borderRadius: '24px',
+  padding: '25px',
+  border: `1px solid ${theme.border}`,
+};
 const labelStyle = { color: '#64748b', fontSize: '11px', fontWeight: '800' };
 const table = { width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' };
 const td = { padding: '15px' };
 const th = { padding: '15px', color:'#64748b', fontSize:'11px', fontWeight:800 };
-const primaryBtn = { backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '15px', fontWeight: '700', cursor: 'pointer' };
+const primaryBtn = {
+  backgroundColor: theme.primary,
+  color: '#fff',
+};
 const actionBtn = { background: '#f1f5f9', border: 'none', padding: '8px 15px', borderRadius: '10px', color: '#1e293b', fontSize: '12px', fontWeight: 'bold', marginRight: '5px' };
 const overlay = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter:'blur(4px)' };
 const modal = { background: 'white', padding: '40px', borderRadius: '35px', width: '480px' };
@@ -338,3 +383,52 @@ function AuthScreen() {
     </div>
   );
 }
+const lightTheme = {
+  bg: '#f8fafc',
+  sidebar: '#0f172a',
+  card: '#ffffff',
+  text: '#0f172a',
+  muted: '#64748b',
+  border: '#e2e8f0',
+  primary: '#2563eb',
+  soft: '#f1f5f9',
+};
+
+const darkTheme = {
+  bg: '#020617',
+  sidebar: '#020617',
+  card: '#020617',
+  text: '#e5e7eb',
+  muted: '#94a3b8',
+  border: '#1e293b',
+  primary: '#3b82f6',
+  soft: '#020617',
+};
+const [darkMode, setDarkMode] = useState(
+  window.matchMedia('(prefers-color-scheme: dark)').matches
+);
+
+const theme = darkMode ? darkTheme : lightTheme;
+
+{window.innerWidth < 768 ? (
+  properties.map(p => (
+    <div key={p.id} style={{...card, marginBottom:'15px'}}>
+      <b>{p.property_name}</b>
+      <p style={{color:theme.muted}}>{p.tenant_name}</p>
+      <p>{p.rent_amount} ₺</p>
+      <button style={primaryBtn}>💰 Plan</button>
+    </div>
+  ))
+) : (
+  <table>...</table>
+)}
+const modal = {
+  background: theme.card,
+  padding: '30px',
+  borderRadius: '25px',
+  width: window.innerWidth < 768 ? '90%' : '480px',
+  maxHeight: '90vh',
+  overflowY: 'auto',
+  color: theme.text
+};
+
