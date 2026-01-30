@@ -2,8 +2,31 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-// App.tsx dosyasının en üstüne (import'ların olduğu yere)
-import { Property, PropertyPhoto, PhotoComparison } from './types';
+
+// TYPES
+interface Property {
+  id: string;
+  user_id: string;
+  property_name: string;
+  tenant_name: string;
+  rent_amount: number;
+  next_increase_date: string | null;
+  tenant_phone: string | null;
+  tenant_email: string | null;
+  full_address: string | null;
+  payment_day: number;
+  contract_start_date: string | null;
+  created_at: string;
+}
+
+interface Payment {
+  id: string;
+  property_id: string;
+  month_year: string;
+  due_date: string;
+  is_paid: boolean;
+  created_at: string;
+}
 
 const supabaseUrl = 'https://pwnffmzmrclvzsrikbdc.supabase.co';
 const supabaseKey = 'sb_publishable_JMQYVqglFtTZsHhUv-o-JQ_fCR-PFqk';
@@ -208,14 +231,14 @@ const getDocumentName = (type) => {
 export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [properties, setProperties] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [activeProperty, setActiveProperty] = useState(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [activeProperty, setActiveProperty] = useState<Property | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const [isPremium, setIsPremium] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ 
     property_name: '', tenant_name: '', rent_amount: '', 
     next_increase_date: '', tenant_phone: '', tenant_email: '', 
@@ -223,10 +246,10 @@ export default function App() {
   });
   
   // YENİ STATE'LER
-  const [showLegalTimer, setShowLegalTimer] = useState(false);
-  const [showIncreaseCalculator, setShowIncreaseCalculator] = useState(null);
-  const [showDocumentGenerator, setShowDocumentGenerator] = useState(null);
-  const [allReminders, setAllReminders] = useState([]);
+  const [showLegalTimer, setShowLegalTimer] = useState<Property | null>(null);
+  const [showIncreaseCalculator, setShowIncreaseCalculator] = useState<Property | null>(null);
+  const [showDocumentGenerator, setShowDocumentGenerator] = useState<Property | null>(null);
+  const [allReminders, setAllReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -284,7 +307,7 @@ export default function App() {
     }
   }
 
-  const checkStatus = (propertyId) => {
+  const checkStatus = (propertyId: string) => {
     const today = new Date();
     const currentMonthStr = `${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
     const property = properties.find(p => p.id === propertyId);
@@ -295,7 +318,7 @@ export default function App() {
     return { label: 'Bekliyor', color: '#64748b', bg: darkMode ? '#334155' : '#f1f5f9' };
   };
 
-  async function createPlan(propertyId, startDay) {
+  async function createPlan(propertyId: string, startDay: number) {
     try {
       const today = new Date();
       const plan = [];
@@ -320,7 +343,7 @@ export default function App() {
     }
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setFormError('');
@@ -417,12 +440,12 @@ export default function App() {
     }
   }
 
-  const openEditForm = (p) => {
+  const openEditForm = (p: Property) => {
     setEditingId(p.id);
     setFormData({
       property_name: p.property_name || '', 
       tenant_name: p.tenant_name || '',
-      rent_amount: p.rent_amount || '', 
+      rent_amount: p.rent_amount?.toString() || '', 
       next_increase_date: p.next_increase_date || '',
       tenant_phone: p.tenant_phone || '', 
       tenant_email: p.tenant_email || '',
@@ -446,9 +469,9 @@ export default function App() {
   };
 
   // YENİ FONKSİYON: Risk skorunu getir
-  const getRiskScoreData = (propertyId) => {
+  const getRiskScoreData = (propertyId: string) => {
     const property = properties.find(p => p.id === propertyId);
-    if (!property) return { score: 50, level: 'medium' };
+    if (!property) return { score: 50, level: 'medium', color: '#f59e0b' };
     
     const propertyPayments = payments.filter(p => p.property_id === propertyId);
     const score = calculateRiskScore(property, propertyPayments);
@@ -468,7 +491,7 @@ export default function App() {
   };
 
   // YENİ FONKSİYON: Hatırlatıcıları işaretle
-  const markReminderAsDone = (reminderId) => {
+  const markReminderAsDone = (reminderId: string) => {
     setAllReminders(prev => prev.filter(r => 
       `${r.propertyId}-${r.type}-${r.date}` !== reminderId
     ));
